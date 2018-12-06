@@ -1,9 +1,13 @@
 package router
 
-import "github.com/gin-gonic/gin"
+import (
+	"net/http"
 
-// Start sets up the router on the specified port
-func Start(port string) {
+	"github.com/gin-gonic/gin"
+)
+
+// NewHTTPHandler returns the HTTP requests handler
+func NewHTTPHandler() http.Handler {
 	router := gin.Default()
-	router.Run(":" + port)
+	return router
 }
