@@ -1,11 +1,11 @@
 package main
 
 import (
+	"github.com/electronlabs/vibes-api/config"
 	"github.com/electronlabs/vibes-api/router"
-	"github.com/electronlabs/vibes-api/utils/env"
 )
 
 func main() {
-	port := env.MustGet("PORT")
-	router.Start(port)
+	config := config.NewConfig()
+	router.Start(config.Port)
 }
