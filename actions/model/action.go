@@ -1,4 +1,4 @@
-package action
+package actions
 
 import (
 	uuid "github.com/satori/go.uuid"
