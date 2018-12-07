@@ -12,6 +12,7 @@ import (
 // NewHTTPHandler returns the HTTP requests handler
 func NewHTTPHandler() http.Handler {
 	router := gin.Default()
+	CreateHealthRoute(router)
 	actions.CreateRoutes(router)
 	users.CreateRoutes(router)
 	return router
