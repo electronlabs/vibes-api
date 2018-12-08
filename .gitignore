@@ -13,3 +13,6 @@
 
 # Application binary
 vibes-api
+
+# build output
+build
