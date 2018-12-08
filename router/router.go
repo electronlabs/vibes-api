@@ -3,17 +3,17 @@ package router
 import (
 	"net/http"
 
-	actions "github.com/electronlabs/vibes-api/actions/router"
-	users "github.com/electronlabs/vibes-api/users/router"
-
 	"github.com/gin-gonic/gin"
+
+	actions "github.com/electronlabs/vibes-api/actions/routes"
+	users "github.com/electronlabs/vibes-api/users/routes"
 )
 
 // NewHTTPHandler returns the HTTP requests handler
 func NewHTTPHandler() http.Handler {
 	router := gin.Default()
-	CreateHealthRoute(router)
-	actions.CreateRoutes(router)
-	users.CreateRoutes(router)
+	HealthRoutes(router)
+	actions.ActionsRoutes(router)
+	users.UsersRoutes(router)
 	return router
 }

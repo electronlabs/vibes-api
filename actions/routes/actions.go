@@ -1,4 +1,4 @@
-package actions
+package routes
 
 import (
 	"net/http"
@@ -6,8 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// CreateRoutes create and returns the actions http routes
-func CreateRoutes(router *gin.Engine) {
+// ActionsRoutes create and returns the actions http routes
+func ActionsRoutes(router *gin.Engine) {
 
 	actions := router.Group("/actions")
 	{

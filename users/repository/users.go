@@ -1,12 +1,12 @@
-package users
+package repository
 
 import (
 	users "github.com/electronlabs/vibes-api/users/model"
 	uuid "github.com/satori/go.uuid"
 )
 
-// Repository provides an abstraction on top of user data source
-type Repository interface {
+// UsersRepository provides an abstraction on top of user data source
+type UsersRepository interface {
 	Create(*users.User) error
 	ReadOne(ID uuid.UUID) (*users.User, error)
 	ReadAll() ([]users.User, error)

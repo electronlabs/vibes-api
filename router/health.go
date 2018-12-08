@@ -6,8 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// CreateHealthRoute create and returns the health http routes
-func CreateHealthRoute(router *gin.Engine) {
+// HealthRoutes create and returns the health http routes
+func HealthRoutes(router *gin.Engine) {
 
 	health := router.Group("/health")
 	{
