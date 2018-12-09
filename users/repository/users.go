@@ -1,8 +1,8 @@
 package repository
 
 import (
-	users "github.com/electronlabs/vibes-api/users/model"
-	uuid "github.com/satori/go.uuid"
+	"github.com/electronlabs/vibes-api/users/model"
+	"github.com/satori/go.uuid"
 )
 
 // UsersRepository provides an abstraction on top of user data source

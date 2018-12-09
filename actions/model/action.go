@@ -1,7 +1,7 @@
 package model
 
 import (
-	uuid "github.com/satori/go.uuid"
+	"github.com/satori/go.uuid"
 )
 
 // Action struct contains information about the main application action.

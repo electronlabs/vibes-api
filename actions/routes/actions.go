@@ -1,18 +1,24 @@
 package routes
 
 import (
+	"github.com/electronlabs/vibes-api/actions/service"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-// ActionsRoutes create and returns the actions http routes
-func ActionsRoutes(router *gin.Engine) {
+// NewActionsRoutesFactory create and returns a factory to create routes for the actions
+func NewActionsRoutesFactory(service *service.ActionsService) func(*gin.Engine) {
+	actionRoutesFactory := func(router *gin.Engine) {
 
-	actions := router.Group("/actions")
-	{
-		actions.GET("/", func(c *gin.Context) {
-			c.String(http.StatusOK, "actions")
-		})
+		ac := router.Group("/actions")
+		{
+			ac.GET("/", func(c *gin.Context) {
+				actionList, _ := service.GetActions()
+				c.JSON(http.StatusOK, actionList)
+			})
+		}
 	}
+
+	return actionRoutesFactory
 }
