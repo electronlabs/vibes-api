@@ -1,4 +1,4 @@
-package router
+package health
 
 import (
 	"net/http"
@@ -7,7 +7,7 @@ import (
 )
 
 // HealthRoutes create and returns the health http routes
-func HealthRoutes(router *gin.Engine) {
+func Routes(router *gin.Engine) {
 
 	health := router.Group("/health")
 	{
