@@ -10,12 +10,12 @@ import (
 
 func main() {
 	config := config.NewConfig()
-	_, err := mongodb.Connect(config.MongoURI)
+	mongo, err := mongodb.Connect(config.MongoURI)
 	if err != nil {
 		panic(err)
 	}
 
-	router := router.NewHTTPHandler()
+	router := router.NewHTTPHandler(mongo)
 
 	err = http.ListenAndServe(":"+config.Port, router)
 	if err != nil {

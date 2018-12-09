@@ -5,14 +5,17 @@ import (
 	"github.com/electronlabs/vibes-api/actions/repository"
 )
 
-type ActionsService struct {
-	repository repository.ActionsRepository
+// Service struct handles action business logic tasks.
+type Service struct {
+	repository repository.Repository
 }
 
-func (s *ActionsService) GetActions() ([]model.Action, error) {
-	return s.repository.GetAll()
+// GetActions contains the business logic to retrieve all actions
+func (svc *Service) GetActions() ([]model.Action, error) {
+	return svc.repository.GetAll()
 }
 
-func NewActionsService(repository repository.ActionsRepository) *ActionsService {
-	return &ActionsService{repository: repository}
+// New creates a new service struct
+func New(repository repository.Repository) *Service {
+	return &Service{repository: repository}
 }
