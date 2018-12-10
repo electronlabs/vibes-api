@@ -1,8 +1,11 @@
 package main
 
 import (
-	"github.com/electronlabs/vibes-api/domain/actions"
 	"net/http"
+
+	actionsStore "github.com/electronlabs/vibes-api/data/actions"
+	"github.com/electronlabs/vibes-api/data/shared/mongodb"
+	"github.com/electronlabs/vibes-api/domain/actions"
 
 	"github.com/electronlabs/vibes-api/config"
 	"github.com/electronlabs/vibes-api/router"
@@ -11,12 +14,17 @@ import (
 func main() {
 	configuration := config.NewConfig()
 
-	actionsRepo := actions.Store{}
-	actionsSvc := actions.NewService(&actionsRepo)
+	mongo, err := mongodb.Connect(configuration.MongoURI)
+	if err != nil {
+		panic(err)
+	}
+
+	actionsRepo := actionsStore.New(mongo)
+	actionsSvc := actions.NewService(actionsRepo)
 
 	httpRouter := router.NewHTTPHandler(actionsSvc)
 
-	err := http.ListenAndServe(":"+configuration.Port, httpRouter)
+	err = http.ListenAndServe(":"+configuration.Port, httpRouter)
 	if err != nil {
 		panic(err)
 	}

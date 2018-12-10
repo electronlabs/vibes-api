@@ -1,7 +1,7 @@
 package users
 
 import (
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 )
 
 // User struct contains information about a user.

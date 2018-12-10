@@ -1,7 +1,7 @@
 package actions
 
 import (
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 )
 
 // Action struct contains information about the main application action.
