@@ -1,4 +1,4 @@
-package routes
+package users
 
 import (
 	"net/http"
@@ -6,8 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// UsersRoutes create and returns the users http routes
-func UsersRoutes(router *gin.Engine) {
+// Routes create and returns the users http routes
+func Routes(router *gin.Engine) {
 
 	users := router.Group("/users")
 	{

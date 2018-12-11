@@ -1,6 +1,8 @@
 package config
 
-import "github.com/electronlabs/vibes-api/utils/env"
+import (
+	"github.com/electronlabs/vibes-api/utils/env"
+)
 
 // Config is a struct that contains configuration variables
 type Config struct {
@@ -10,6 +12,7 @@ type Config struct {
 
 // NewConfig creates a new Config struct
 func NewConfig() *Config {
+	env.CheckDotEnv()
 	port := env.MustGet("PORT")
 	mongoURI := env.MustGet("MONGO_URI")
 
