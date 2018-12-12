@@ -7,7 +7,7 @@ type Service struct {
 
 // GetActions contains the business logic to retrieve all actions
 func (svc *Service) GetActions() ([]Action, error) {
-	return svc.repository.GetAll()
+	return svc.repository.List()
 }
 
 // New creates a new service struct
