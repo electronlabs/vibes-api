@@ -12,9 +12,9 @@ type Config struct {
 
 // NewConfig creates a new Config struct
 func NewConfig() *Config {
-    env.CheckDotEnv()
-    return &Config {
-        Port: env.MustGet("PORT"),
-        MongoURI: env.MustGet("MONGO_URI"),
-    }
+	env.CheckDotEnv()
+	return &Config{
+		Port:     env.MustGet("PORT"),
+		MongoURI: env.MustGet("MONGO_URI"),
+	}
 }

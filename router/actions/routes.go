@@ -1,9 +1,10 @@
 package actions
 
 import (
+	"net/http"
+
 	"github.com/electronlabs/vibes-api/domain/actions"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 // NewRoutesFactory create and returns a factory to create routes for the actions
