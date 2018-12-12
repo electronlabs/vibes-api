@@ -14,7 +14,7 @@ import (
 func main() {
 	configuration := config.NewConfig()
 
-	mongo, err := mongodb.Connect(configuration.MongoURI)
+mongo, err := mongodb.Connect(configuration.MongoURI)
 	if err != nil {
 		panic(err)
 	}
