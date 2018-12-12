@@ -11,7 +11,7 @@ func NewRoutesFactory(service *actions.Service) func(group *gin.RouterGroup) {
 	actionRoutesFactory := func(group *gin.RouterGroup) {
 
 		group.GET("/", func(c *gin.Context) {
-			actionList, _ := service.GetActions()
+			actionList, _ := service.List()
 			c.JSON(http.StatusOK, actionList)
 		})
 	}
