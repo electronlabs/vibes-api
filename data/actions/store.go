@@ -12,7 +12,7 @@ type Store struct {
 
 // New creates a new Database struct
 func New(client *mongo.Client) *Store {
-	return &Store {
+	return &Store{
 		client: client,
 	}
 }
