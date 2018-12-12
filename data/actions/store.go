@@ -24,7 +24,7 @@ func (s *Store) ListActions() ([]actions.Action, error) {
 }
 
 // GetAction gets all actions from the database
-func (s *Store) GetAction() (actions.Action, error) {
+func (s *Store) GetAction(actionId string) (actions.Action, error) {
 	// TODO
 	return actions.Action{}, nil
 }
