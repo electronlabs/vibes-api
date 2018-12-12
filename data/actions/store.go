@@ -12,7 +12,7 @@ type Store struct {
 
 // New creates a new Database struct
 func New(client *mongo.Client) *Store {
-	return &Store {
+	return &Store{
 		client: client,
 	}
 }
@@ -21,4 +21,10 @@ func New(client *mongo.Client) *Store {
 func (s *Store) ListActions() ([]actions.Action, error) {
 	// TODO
 	return []actions.Action{}, nil
+}
+
+// GetAction gets all actions from the database
+func (s *Store) GetAction(actionId string) (actions.Action, error) {
+	// TODO
+	return actions.Action{}, nil
 }
