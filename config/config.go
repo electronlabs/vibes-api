@@ -6,15 +6,19 @@ import (
 
 // Config is a struct that contains configuration variables
 type Config struct {
-	Port     string
-	MongoURI string
+	Environment string
+	Port        string
+	MongoURI    string
+	JWKSURL     string
 }
 
 // NewConfig creates a new Config struct
 func NewConfig() *Config {
 	env.CheckDotEnv()
 	return &Config{
-		Port:     env.MustGet("PORT"),
-		MongoURI: env.MustGet("MONGO_URI"),
+		Environment: env.MustGet("ENV"),
+		Port:        env.MustGet("PORT"),
+		MongoURI:    env.MustGet("MONGO_URI"),
+		JWKSURL:     env.MustGet("JWKS_URL"),
 	}
 }
