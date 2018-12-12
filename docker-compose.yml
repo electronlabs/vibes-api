@@ -1,0 +1,14 @@
+version: "3.7"
+services:
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file: .env
+    depends_on:
+      - db
+  db:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    env_file: .env
