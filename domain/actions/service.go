@@ -5,9 +5,9 @@ type Service struct {
 	repository Repository
 }
 
-// List contains the business logic to retrieve all actions
-func (svc *Service) List() ([]Action, error) {
-	return svc.repository.List()
+// ListActions contains the business logic to retrieve all actions
+func (svc *Service) ListActions() ([]Action, error) {
+	return svc.repository.ListActions()
 }
 
 // Get contains the business logic to retrieve specific action
