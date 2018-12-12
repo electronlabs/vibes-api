@@ -10,6 +10,11 @@ func (svc *Service) List() ([]Action, error) {
 	return svc.repository.List()
 }
 
+// Get contains the business logic to retrieve specific action
+func (svc *Service) Get(actionId string) (Action, error) {
+	return svc.repository.Get(actionId)
+}
+
 // New creates a new service struct
 func NewService(repository Repository) *Service {
 	return &Service{repository: repository}
