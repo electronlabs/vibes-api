@@ -22,7 +22,7 @@ func main() {
 	actionsRepo := actionsStore.New(mongo)
 	actionsSvc := actions.NewService(actionsRepo)
 
-	httpRouter := router.NewHTTPHandler(actionsSvc)
+	httpRouter := router.NewHTTPHandler(configuration.JWKSURL, configuration.Auth0NativeIssuer, configuration.Auth0APIAudience, actionsSvc)
 
 	err = http.ListenAndServe(":"+configuration.Port, httpRouter)
 	if err != nil {

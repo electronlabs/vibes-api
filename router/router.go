@@ -11,7 +11,6 @@ import (
 
 	jwtmiddleware "github.com/auth0/go-jwt-middleware"
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/electronlabs/vibes-api/config"
 	"github.com/gin-gonic/gin"
 )
 
@@ -28,11 +27,9 @@ type Jwks struct {
 	Keys []JSONWebKeys `json:"keys"`
 }
 
-var configuration = config.NewConfig()
-
-func getPemCert(token *jwt.Token) (string, error) {
+func getPemCert(token *jwt.Token, jwksUrl string) (string, error) {
 	cert := ""
-	resp, err := http.Get(configuration.JWKSURL)
+	resp, err := http.Get(jwksUrl)
 
 	if err != nil {
 		return cert, err
@@ -60,35 +57,37 @@ func getPemCert(token *jwt.Token) (string, error) {
 	return cert, nil
 }
 
-var jwtMiddleware = jwtmiddleware.New(jwtmiddleware.Options{
-	ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
-		// Verify 'aud' claim
-		aud := configuration.Auth0APIAudience
-		checkAud := token.Claims.(jwt.MapClaims).VerifyAudience(aud, false)
-		if !checkAud {
-			return token, errors.New("Invalid audience.")
-		}
-		// Verify 'iss' claim
-		iss := configuration.Auth0NativeIssuer
-		checkIss := token.Claims.(jwt.MapClaims).VerifyIssuer(iss, false)
-		if !checkIss {
-			return token, errors.New("Invalid issuer.")
-		}
+func initJWTMiddleware(jwksUrl, issuer, audience string) *jwtmiddleware.JWTMiddleware {
+	return jwtmiddleware.New(jwtmiddleware.Options{
+		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
+			// Verify 'aud' claim
+			aud := audience
+			checkAud := token.Claims.(jwt.MapClaims).VerifyAudience(aud, false)
+			if !checkAud {
+				return token, errors.New("Invalid audience.")
+			}
+			// Verify 'iss' claim
+			iss := issuer
+			checkIss := token.Claims.(jwt.MapClaims).VerifyIssuer(iss, false)
+			if !checkIss {
+				return token, errors.New("Invalid issuer.")
+			}
 
-		cert, err := getPemCert(token)
-		if err != nil {
-			panic(err.Error())
-		}
+			cert, err := getPemCert(token, jwksUrl)
+			if err != nil {
+				panic(err.Error())
+			}
 
-		result, _ := jwt.ParseRSAPublicKeyFromPEM([]byte(cert))
-		return result, nil
-	},
-	SigningMethod: jwt.SigningMethodRS256,
-})
+			result, _ := jwt.ParseRSAPublicKeyFromPEM([]byte(cert))
+			return result, nil
+		},
+		SigningMethod: jwt.SigningMethodRS256,
+	})
+}
 
-func checkJWT() gin.HandlerFunc {
+func checkJWT(authMiddleware *jwtmiddleware.JWTMiddleware) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		jwtMid := *jwtMiddleware
+		jwtMid := authMiddleware
 		if err := jwtMid.CheckJWT(c.Writer, c.Request); err != nil {
 			c.AbortWithStatus(401)
 		}
@@ -96,15 +95,15 @@ func checkJWT() gin.HandlerFunc {
 }
 
 // NewHTTPHandler returns the HTTP requests handler
-func NewHTTPHandler(actionsSvc *actions.Service) http.Handler {
+func NewHTTPHandler(jwksURL, issuer, audience string, actionsSvc *actions.Service) http.Handler {
 	router := gin.Default()
-
+	authMiddleware := initJWTMiddleware(jwksURL, issuer, audience)
 	healthGroup := router.Group("/health")
 	healthRoutes.NewRoutesFactory(actionsSvc)(healthGroup)
 
 	api := router.Group("/api")
 	actionsGroup := api.Group("/actions")
-	actionsGroup.Use(checkJWT())
+	actionsGroup.Use(checkJWT(authMiddleware))
 	actionsRoutes.NewRoutesFactory(actionsSvc)(actionsGroup)
 	return router
 }
