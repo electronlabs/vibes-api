@@ -58,12 +58,12 @@ func CheckJWT(jwksURL string) gin.HandlerFunc {
 
 		tokenStr, err := jwtFromAuthHeader(ctx.Request)
 		if err != nil {
-			// TODO: Return 400
+			ctx.AbortWithStatus(400)
 		}
 
 		token, err := jwt.Parse(tokenStr, tokenVerifier(jwksURL))
 		if err != nil {
-			// TODO: Return 401
+			ctx.AbortWithStatus(401)
 		}
 
 		ctx.Set("tokenClaims", token.Claims)
