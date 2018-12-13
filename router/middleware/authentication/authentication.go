@@ -53,7 +53,7 @@ func getPemCert(token *jwt.Token, jwksURL string) (string, error) {
 	return cert, nil
 }
 
-func NewJwtMiddleware(jwksURL, issuer, audience string) *jwtmiddleware.JWTMiddleware {
+func New(jwksURL, issuer, audience string) *jwtmiddleware.JWTMiddleware {
 	return jwtmiddleware.New(jwtmiddleware.Options{
 		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
 			// Verify 'aud' claim
@@ -82,7 +82,7 @@ func NewJwtMiddleware(jwksURL, issuer, audience string) *jwtmiddleware.JWTMiddle
 }
 
 func CheckJWT(jwksURL, issuer, audience string) gin.HandlerFunc {
-	authMiddleware := NewJwtMiddleware(jwksURL, issuer, audience)
+	authMiddleware := New(jwksURL, issuer, audience)
 	return func(c *gin.Context) {
 		jwtMid := authMiddleware
 		if err := jwtMid.CheckJWT(c.Writer, c.Request); err != nil {
