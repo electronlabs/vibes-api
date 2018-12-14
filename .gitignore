@@ -17,9 +17,7 @@ vibes-api
 # build output
 build
 
-# Editor / IDE preferences
-.idea/
-.vscode/
+.vscode/settings.json
 
 # Environment files
 .env

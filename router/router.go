@@ -1,10 +1,11 @@
 package router
 
 import (
+	"net/http"
+
 	"github.com/electronlabs/vibes-api/domain/actions"
 	actionsRoute "github.com/electronlabs/vibes-api/router/actions"
 	"github.com/electronlabs/vibes-api/router/health"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )

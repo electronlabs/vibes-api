@@ -1,0 +1,77 @@
+#!/bin/sh
+# Copyright 2012 The Go Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style
+# license that can be found in the LICENSE file.
+
+# git gofmt pre-commit hook
+#
+# To use, store as .git/hooks/pre-commit inside your repository and make sure
+# it has execute permissions.
+#
+# This script does not handle file names that contain spaces.
+
+gofiles=$(git diff --cached --name-only --diff-filter=ACM | grep '\.go$')
+[ -z "$gofiles" ] && exit 0
+
+unformatted=$(gofmt -l $gofiles)
+
+if [[ ! -z "$unformatted" ]]; then
+  printf "Go files must be formatted with gofmt. Please run:"
+  # Some files are not gofmt'd. Print message and fail.
+  for file in $unformatted; do
+    printf "\t\033[31mgofmt -w $file\033[0m \033[0;30m\033[41mFAILURE!\033[0m\n"
+  done
+  exit 1
+fi
+
+printf "\t\033[32mgofmt\033[0m \033[0;30m\033[42mpass\033[0m\n"
+
+GOLINT=$GOPATH/bin/golint
+GOIMPORTS=$GOPATH/bin/goimports
+
+# Check for golint
+if [[ ! -x "$GOLINT" ]]; then
+  printf "\t\033[41mPlease install golint\033[0m (go get -u golang.org/x/lint/golint)"
+  exit 1
+fi
+
+# Check for goimports
+if [[ ! -x "$GOIMPORTS" ]]; then
+  printf "\t\033[41mPlease install goimports\033[0m (go get golang.org/x/tools/cmd/goimports)"
+  exit 1
+fi
+
+PASS=true
+
+for FILE in $gofiles
+do
+  # Run goimports on the staged file
+  $GOIMPORTS -w $FILE
+
+  # Run golint on the staged file and check the exit status
+  $GOLINT "-set_exit_status" $FILE
+  if [[ $? == 1 ]]; then
+    printf "\t\033[31mgolint $FILE\033[0m \033[0;30m\033[41mFAILURE!\033[0m\n"
+    PASS=false
+  else
+    printf "\t\033[32mgolint $FILE\033[0m \033[0;30m\033[42mpass\033[0m\n"
+  fi
+
+  # Run govet on the staged file and check the exit status
+  go vet $FILE
+  if [[ $? != 0 ]]; then
+    printf "\t\033[31mgo vet $FILE\033[0m \033[0;30m\033[41mFAILURE!\033[0m\n"
+    PASS=false
+  else
+    printf "\t\033[32mgo vet $FILE\033[0m \033[0;30m\033[42mpass\033[0m\n"
+  fi
+done
+
+if ! $PASS; then
+  printf "\033[0;30m\033[41mCOMMIT FAILED\033[0m\n"
+  exit 1
+else
+  printf "\033[0;30m\033[42mCOMMIT SUCCEEDED\033[0m\n"
+fi
+
+exit 0

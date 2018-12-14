@@ -1,0 +1,12 @@
+#!/bin/sh
+status=0
+
+failing_tests="$(go test ./... | grep "FAIL:" | awk '{print $3}')"
+if test -n "$failing_tests" ; then
+  for fail in $failing_tests; do
+    echo "git pre-push check failed: go test failed: $fail"
+  done
+  status=1
+fi
+
+exit $status
