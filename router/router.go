@@ -6,6 +6,7 @@ import (
 	"github.com/electronlabs/vibes-api/router/health"
 	"net/http"
 
+	"github.com/electronlabs/vibes-api/config"
 	"github.com/electronlabs/vibes-api/domain/actions"
 	actionsRoutes "github.com/electronlabs/vibes-api/router/actions"
 	healthRoutes "github.com/electronlabs/vibes-api/router/actions"
@@ -15,9 +16,9 @@ import (
 )
 
 // NewHTTPHandler returns the HTTP requests handler
-func NewHTTPHandler(jwksURL string, actionsSvc *actions.Service) http.Handler {
+func NewHTTPHandler(authConfig *config.Auth, actionsSvc *actions.Service) http.Handler {
 	router := gin.Default()
-	authMiddleware := auth.CheckJWT(jwksURL)
+	authMiddleware := auth.CheckJWT(authConfig.JWKSURL, authConfig.Audience, authConfig.Issuer)
 
 	healthGroup := router.Group("/health")
 	healthGroup.Use(authMiddleware)

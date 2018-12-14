@@ -25,29 +25,61 @@ func jwtFromAuthHeader(r *http.Request) (string, error) {
 	return authHeaderParts[1], nil
 }
 
-func tokenVerifier(jwksURL string) func(token *jwt.Token) (interface{}, error) {
+func validateClaims(token *jwt.Token, audience string, issuer string) error {
+	// Validate time based claims
+	err := token.Claims.Valid()
+	if err != nil {
+		return err
+	}
+
+	// Validate audience
+	checkAud := token.Claims.(jwt.MapClaims).VerifyAudience(audience, false)
+	if !checkAud {
+		return errors.New("invalid token audience")
+	}
+
+	// Validate issuer
+	checkIss := token.Claims.(jwt.MapClaims).VerifyIssuer(issuer, false)
+	if !checkIss {
+		return errors.New("invalid token issuer")
+	}
+
+	return nil
+}
+
+func getPublicKey(set *jwk.Set, token *jwt.Token) (interface{}, error) {
+	keyID, ok := token.Header["kid"].(string)
+	if !ok {
+		return nil, errors.New("expecting JWT header to have string kid")
+	}
+
+	if keys := set.LookupKeyID(keyID); len(keys) == 1 {
+		return keys[0].Materialize()
+	}
+
+	return nil, errors.New("Unable to find key")
+}
+
+func tokenVerifier(jwksURL string, audience string, issuer string) func(token *jwt.Token) (interface{}, error) {
 	set, err := jwk.FetchHTTP(jwksURL)
 
 	return func(token *jwt.Token) (interface{}, error) {
+		// Error fetching JWKS
 		if err != nil {
 			return nil, err
 		}
 
-		keyID, ok := token.Header["kid"].(string)
-		if !ok {
-			return nil, errors.New("expecting JWT header to have string kid")
+		err = validateClaims(token, audience, issuer)
+		if err != nil {
+			return nil, err
 		}
 
-		if key := set.LookupKeyID(keyID); len(key) == 1 {
-			return key[0].Materialize()
-		}
-
-		return nil, errors.New("Unable to find key")
+		return getPublicKey(set, token)
 	}
 }
 
 // CheckJWT checks the JSON Web Token and verifies it has the correct permissions for the request.
-func CheckJWT(jwksURL string) gin.HandlerFunc {
+func CheckJWT(jwksURL string, audience string, issuer string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		header := ctx.Request.Header.Get("Authorization")
 
@@ -61,7 +93,7 @@ func CheckJWT(jwksURL string) gin.HandlerFunc {
 			ctx.AbortWithStatus(400)
 		}
 
-		token, err := jwt.Parse(tokenStr, tokenVerifier(jwksURL))
+		token, err := jwt.Parse(tokenStr, tokenVerifier(jwksURL, audience, issuer))
 		if err != nil {
 			ctx.AbortWithStatus(401)
 		}
