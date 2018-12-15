@@ -10,7 +10,7 @@ import (
 	"github.com/electronlabs/vibes-api/domain/actions"
 	actionsRoutes "github.com/electronlabs/vibes-api/router/actions"
 	healthRoutes "github.com/electronlabs/vibes-api/router/actions"
-	"github.com/electronlabs/vibes-api/router/auth"
+	"github.com/electronlabs/vibes-api/router/middleware/auth"
 
 	"github.com/gin-gonic/gin"
 )

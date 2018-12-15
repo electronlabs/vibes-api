@@ -2,28 +2,10 @@ package auth
 
 import (
 	"errors"
-	"net/http"
-	"strings"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/gin-gonic/gin"
 	"github.com/lestrrat-go/jwx/jwk"
 )
-
-// jwtFromAuthHeader takes a request and extracts the JWT token from the Authorization header.
-func jwtFromAuthHeader(r *http.Request) (string, error) {
-	authHeader := r.Header.Get("Authorization")
-	if authHeader == "" {
-		return "", nil // No error, just no token
-	}
-
-	authHeaderParts := strings.Split(authHeader, " ")
-	if len(authHeaderParts) != 2 || strings.ToLower(authHeaderParts[0]) != "bearer" {
-		return "", errors.New("Authorization header format must be Bearer {token}")
-	}
-
-	return authHeaderParts[1], nil
-}
 
 // validateClaims validates a token's time based claims, audience and issuer.
 func validateClaims(token *jwt.Token, audience string, issuer string) error {
@@ -83,27 +65,12 @@ func tokenVerifier(jwksURL string, audience string, issuer string) func(token *j
 	}
 }
 
-// CheckJWT checks the JSON Web Token and verifies it has the correct permissions for the request.
-func CheckJWT(jwksURL string, audience string, issuer string) gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		header := ctx.Request.Header.Get("Authorization")
-
-		tokenStr := ""
-		if substr := strings.Split(header, " "); len(substr) == 2 {
-			tokenStr = substr[1]
-		}
-
-		tokenStr, err := jwtFromAuthHeader(ctx.Request)
-		if err != nil {
-			ctx.AbortWithStatus(400)
-		}
-
-		token, err := jwt.Parse(tokenStr, tokenVerifier(jwksURL, audience, issuer))
-		if err != nil {
-			ctx.AbortWithStatus(401)
-		}
-
-		ctx.Set("user", token)
-		ctx.Next()
+// CheckJWT checks the JSON Web Token and verifies it has the correct permissions.
+func CheckJWT(tokenStr string, jwksURL string, audience string, issuer string) (*jwt.Token, error) {
+	token, err := jwt.Parse(tokenStr, tokenVerifier(jwksURL, audience, issuer))
+	if err != nil {
+		return nil, err
 	}
+
+	return token, nil
 }
