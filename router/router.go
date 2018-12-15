@@ -6,28 +6,28 @@ import (
 	"github.com/electronlabs/vibes-api/router/health"
 	"net/http"
 
-	"github.com/electronlabs/vibes-api/config"
 	"github.com/electronlabs/vibes-api/domain/actions"
+	"github.com/electronlabs/vibes-api/domain/auth"
 	actionsRoutes "github.com/electronlabs/vibes-api/router/actions"
 	healthRoutes "github.com/electronlabs/vibes-api/router/actions"
-	"github.com/electronlabs/vibes-api/router/middleware/auth"
+	authMiddleware "github.com/electronlabs/vibes-api/router/middleware/auth"
 
 	"github.com/gin-gonic/gin"
 )
 
 // NewHTTPHandler returns the HTTP requests handler
-func NewHTTPHandler(authConfig *config.Auth, actionsSvc *actions.Service) http.Handler {
+func NewHTTPHandler(authSvc auth.AuthService, actionsSvc *actions.Service) http.Handler {
 	router := gin.Default()
-	authMiddleware := auth.CheckJWT(authConfig.JWKSURL, authConfig.Audience, authConfig.Issuer)
+	authMid := authMiddleware.CheckJWT(authSvc)
 
 	healthGroup := router.Group("/health")
-	healthGroup.Use(authMiddleware)
+	healthGroup.Use(authMid)
 	healthRoutes.NewRoutesFactory(actionsSvc)(healthGroup)
 
 	api := router.Group("/api")
 
 	actionsGroup := api.Group("/actions")
-	actionsGroup.Use(authMiddleware)
+	actionsGroup.Use(authMid)
 	actionsRoutes.NewRoutesFactory(actionsSvc)(actionsGroup)
 	return router
 }

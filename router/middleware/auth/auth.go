@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	authService "github.com/electronlabs/vibes-api/domain/auth"
+	"github.com/electronlabs/vibes-api/domain/auth"
 	"github.com/gin-gonic/gin"
 )
 
@@ -25,7 +25,7 @@ func jwtFromAuthHeader(r *http.Request) (string, error) {
 }
 
 // CheckJWT checks the JSON Web Token and verifies it has the correct permissions for the request.
-func CheckJWT(jwksURL string, audience string, issuer string) gin.HandlerFunc {
+func CheckJWT(authSvc auth.AuthService) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		header := ctx.Request.Header.Get("Authorization")
 
@@ -39,7 +39,7 @@ func CheckJWT(jwksURL string, audience string, issuer string) gin.HandlerFunc {
 			ctx.AbortWithStatus(400)
 		}
 
-		token, err := authService.CheckJWT(tokenStr, jwksURL, audience, issuer)
+		token, err := authSvc.CheckJWT(tokenStr)
 		if err != nil {
 			ctx.AbortWithStatus(401)
 		}
