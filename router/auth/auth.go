@@ -25,6 +25,7 @@ func jwtFromAuthHeader(r *http.Request) (string, error) {
 	return authHeaderParts[1], nil
 }
 
+// validateClaims validates a token's time based claims, audience and issuer.
 func validateClaims(token *jwt.Token, audience string, issuer string) error {
 	// Validate time based claims
 	err := token.Claims.Valid()
@@ -47,6 +48,8 @@ func validateClaims(token *jwt.Token, audience string, issuer string) error {
 	return nil
 }
 
+// getPublicKey searches inside a JWKS for a key corresponding to the token passed
+// and, if it's found, it generates the corresponding public RSA key using the key info.
 func getPublicKey(set *jwk.Set, token *jwt.Token) (interface{}, error) {
 	keyID, ok := token.Header["kid"].(string)
 	if !ok {
@@ -60,6 +63,8 @@ func getPublicKey(set *jwk.Set, token *jwt.Token) (interface{}, error) {
 	return nil, errors.New("Unable to find key")
 }
 
+// tokenVerifier returns the function that verifies the claims and generates the
+// public RSA key to validate the passed JWT against.
 func tokenVerifier(jwksURL string, audience string, issuer string) func(token *jwt.Token) (interface{}, error) {
 	set, err := jwk.FetchHTTP(jwksURL)
 
@@ -98,7 +103,7 @@ func CheckJWT(jwksURL string, audience string, issuer string) gin.HandlerFunc {
 			ctx.AbortWithStatus(401)
 		}
 
-		ctx.Set("tokenClaims", token.Claims)
+		ctx.Set("user", token)
 		ctx.Next()
 	}
 }
