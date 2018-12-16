@@ -27,13 +27,6 @@ func jwtFromAuthHeader(r *http.Request) (string, error) {
 // CheckJWT checks the JSON Web Token and verifies it has the correct permissions for the request.
 func CheckJWT(authSvc auth.AuthService) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		header := ctx.Request.Header.Get("Authorization")
-
-		tokenStr := ""
-		if substr := strings.Split(header, " "); len(substr) == 2 {
-			tokenStr = substr[1]
-		}
-
 		tokenStr, err := jwtFromAuthHeader(ctx.Request)
 		if err != nil {
 			ctx.AbortWithStatus(400)
