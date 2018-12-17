@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/davecgh/go-spew/spew"
+
 	"github.com/electronlabs/vibes-api/domain/auth"
 	"github.com/gin-gonic/gin"
 )
@@ -38,6 +40,8 @@ func CheckJWT(authSvc auth.AuthService) gin.HandlerFunc {
 		}
 
 		ctx.Set("user", token)
-		ctx.Next()
+
+		user, _ := ctx.Get("user")
+		spew.Dump(user)
 	}
 }

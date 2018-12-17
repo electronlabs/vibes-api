@@ -34,10 +34,13 @@ func TestAuthMiddleware(t *testing.T) {
 					})
 
 					req := &http.Request{
+						Method: "GET",
 						Header: http.Header{
 							"Authorization": {"xxx.yyy.zzz"},
 						},
-						URL: &url.URL{},
+						URL: &url.URL{
+							Path: "/",
+						},
 					}
 
 					router.ServeHTTP(rec, req)
@@ -57,10 +60,13 @@ func TestAuthMiddleware(t *testing.T) {
 					})
 
 					req := &http.Request{
+						Method: "GET",
 						Header: http.Header{
 							"Authorization": {"Foo xxx.yyy.zzz"},
 						},
-						URL: &url.URL{},
+						URL: &url.URL{
+							Path: "/",
+						},
 					}
 
 					router.ServeHTTP(rec, req)
@@ -83,10 +89,13 @@ func TestAuthMiddleware(t *testing.T) {
 				})
 
 				req := &http.Request{
+					Method: "GET",
 					Header: http.Header{
 						"Authorization": {"Bearer xxx.yyy.zzz"},
 					},
-					URL: &url.URL{},
+					URL: &url.URL{
+						Path: "/",
+					},
 				}
 
 				router.ServeHTTP(rec, req)
@@ -107,17 +116,22 @@ func TestAuthMiddleware(t *testing.T) {
 				})
 
 				ctx.Request = &http.Request{
+					Method: "GET",
 					Header: http.Header{
 						"Authorization": {"Bearer xxx.yyy.zzz"},
 					},
-					URL: &url.URL{},
+					URL: &url.URL{
+						Path: "/",
+					},
 				}
+
+				router.ServeHTTP(rec, ctx.Request)
 
 				user, ok := ctx.Get("user")
 
-				So(rec.Code, ShouldEqual, 200)
 				So(ok, ShouldEqual, true)
 				So(user, ShouldPointTo, token)
+				So(rec.Code, ShouldEqual, http.StatusOK)
 			})
 		})
 	})
