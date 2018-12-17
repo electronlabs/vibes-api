@@ -109,13 +109,17 @@ func TestAuthMiddleware(t *testing.T) {
 				authSvc.On("CheckJWT", mock.Anything).Return(token, nil)
 
 				rec := httptest.NewRecorder()
-				ctx, router := gin.CreateTestContext(rec)
+				router := gin.Default()
 				router.Use(CheckJWT(authSvc))
 				router.GET("/", func(c *gin.Context) {
+					user, ok := c.Get("user")
+
+					So(ok, ShouldEqual, true)
+					So(user, ShouldPointTo, token)
 					c.String(http.StatusOK, "ok")
 				})
 
-				ctx.Request = &http.Request{
+				req := &http.Request{
 					Method: "GET",
 					Header: http.Header{
 						"Authorization": {"Bearer xxx.yyy.zzz"},
@@ -125,12 +129,8 @@ func TestAuthMiddleware(t *testing.T) {
 					},
 				}
 
-				router.ServeHTTP(rec, ctx.Request)
+				router.ServeHTTP(rec, req)
 
-				user, ok := ctx.Get("user")
-
-				So(ok, ShouldEqual, true)
-				So(user, ShouldPointTo, token)
 				So(rec.Code, ShouldEqual, http.StatusOK)
 			})
 		})
