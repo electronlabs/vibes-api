@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/lestrrat-go/jwx/jwk"
 )
 
 // AuthService interface defines authentication service behavior
@@ -14,17 +13,17 @@ type AuthService interface {
 
 // Service is the struct that implements AuthService interface
 type Service struct {
-	jwksURL  string
-	audience string
-	issuer   string
+	repository AuthRepository
+	audience   string
+	issuer     string
 }
 
 // NewService creates a new instance of authentication Service
-func NewService(jwksURL string, audience string, issuer string) *Service {
+func NewService(repository AuthRepository, audience string, issuer string) *Service {
 	return &Service{
-		jwksURL:  jwksURL,
-		audience: audience,
-		issuer:   issuer,
+		repository: repository,
+		audience:   audience,
+		issuer:     issuer,
 	}
 }
 
@@ -51,38 +50,31 @@ func (svc *Service) validateClaims(token *jwt.Token) error {
 	return nil
 }
 
-// getPublicKey searches inside a JWKS for a key corresponding to the token passed
-// and, if it's found, it generates the corresponding public RSA key using the key info.
-func (svc *Service) getPublicKey(set *jwk.Set, token *jwt.Token) (interface{}, error) {
+// getPublicKeyID extracts the public key ID from the passed token.
+func (svc *Service) getPublicKeyID(token *jwt.Token) (string, error) {
 	keyID, ok := token.Header["kid"].(string)
 	if !ok {
-		return nil, errors.New("expecting JWT header to have string kid")
+		return "", errors.New("expecting JWT header to have string kid")
 	}
 
-	if keys := set.LookupKeyID(keyID); len(keys) == 1 {
-		return keys[0].Materialize()
-	}
-
-	return nil, errors.New("Unable to find key")
+	return keyID, nil
 }
 
 // tokenVerifier returns the function that verifies the claims and generates the
 // public RSA key to validate the passed JWT against.
 func (svc *Service) tokenVerifier() func(token *jwt.Token) (interface{}, error) {
-	set, err := jwk.FetchHTTP(svc.jwksURL)
-
 	return func(token *jwt.Token) (interface{}, error) {
-		// Error fetching JWKS
+		err := svc.validateClaims(token)
 		if err != nil {
 			return nil, err
 		}
 
-		err = svc.validateClaims(token)
+		keyID, err := svc.getPublicKeyID(token)
 		if err != nil {
 			return nil, err
 		}
 
-		return svc.getPublicKey(set, token)
+		return svc.repository.GetPublicKey(keyID)
 	}
 }
 

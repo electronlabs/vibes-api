@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	actionsStore "github.com/electronlabs/vibes-api/data/actions"
+	jwks "github.com/electronlabs/vibes-api/data/auth"
 	"github.com/electronlabs/vibes-api/data/shared/mongodb"
 	"github.com/electronlabs/vibes-api/domain/actions"
 	"github.com/electronlabs/vibes-api/domain/auth"
@@ -20,7 +21,11 @@ func main() {
 		panic(err)
 	}
 
-	authSvc := auth.NewService(configuration.Auth.JWKSURL, configuration.Auth.Audience, configuration.Auth.Issuer)
+	authRepo, err := jwks.New(configuration.Auth.JWKSURL)
+	if err != nil {
+		panic(err)
+	}
+	authSvc := auth.NewService(authRepo, configuration.Auth.Audience, configuration.Auth.Issuer)
 
 	actionsRepo := actionsStore.New(mongo)
 	actionsSvc := actions.NewService(actionsRepo)
