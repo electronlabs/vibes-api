@@ -19,7 +19,7 @@ func main() {
 		panic(err)
 	}
 
-	actionsRepo := actionsStore.New(mongo)
+	actionsRepo := actionsStore.New(mongo, configuration.DatabaseName)
 	actionsSvc := actions.NewService(actionsRepo)
 
 	httpRouter := router.NewHTTPHandler(actionsSvc)
