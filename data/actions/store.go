@@ -59,8 +59,8 @@ func (s *Store) ListActions() ([]actions.Action, error) {
 }
 
 // GetAction gets all actions from the database
-func (s *Store) GetAction(actionId string) (actions.Action, error) {
-	var result actions.Action
+func (s *Store) GetAction(actionId string) (*actions.Action, error) {
+	var result *actions.Action
 	filter := bson.M{"id": actionId}
 	collection := s.getCollection(s.databaseName)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -68,7 +68,7 @@ func (s *Store) GetAction(actionId string) (actions.Action, error) {
 	err := collection.FindOne(ctx, filter).Decode(&result)
 	if err != nil {
 		spew.Dump(err)
-		return result, errors.New("Action doc not found")
+		return nil, errors.New("Action doc not found")
 	}
 	return result, err
 }

@@ -11,7 +11,7 @@ func (svc *Service) ListActions() ([]Action, error) {
 }
 
 // GetAction contains the business logic to retrieve specific action
-func (svc *Service) GetAction(actionId string) (Action, error) {
+func (svc *Service) GetAction(actionId string) (*Action, error) {
 	return svc.repository.GetAction(actionId)
 }
 
