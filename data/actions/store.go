@@ -2,6 +2,7 @@ package actions
 
 import (
 	"context"
+	"errors"
 	"log"
 	"time"
 
@@ -32,21 +33,44 @@ func New(client *mongo.Client, databaseName string) *Store {
 
 // ListActions gets all actions from the database
 func (s *Store) ListActions() ([]actions.Action, error) {
-	// TODO
-	return []actions.Action{}, nil
+	collection := s.getCollection(s.databaseName)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	cur, err := collection.Find(ctx, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer cur.Close(ctx)
+	var results []actions.Action
+	actionDoc := actions.Action{}
+	for cur.Next(ctx) {
+		err := cur.Decode(&actionDoc)
+		spew.Dump(actionDoc)
+		if err != nil {
+			log.Fatal(err)
+		}
+		results = append(results, actionDoc)
+		// do something with result....
+	}
+	if err := cur.Err(); err != nil {
+		log.Fatal(err)
+	}
+	spew.Dump(results)
+	return results, nil
 }
 
 // GetAction gets all actions from the database
 func (s *Store) GetAction(actionId string) (actions.Action, error) {
+	var result actions.Action
 	filter := bson.M{"id": actionId}
 	collection := s.getCollection(s.databaseName)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	err := collection.FindOne(ctx, filter).Decode(&actions.Action{})
+	err := collection.FindOne(ctx, filter).Decode(&result)
 	spew.Dump(err)
 	if err != nil {
-		log.Fatal(err)
+		spew.Dump("enter")
+		return result, errors.New("Action doc not found")
 	}
-	spew.Dump(err)
-	return actions.Action{}, err
+	return result, err
 }

@@ -18,8 +18,14 @@ func NewRoutesFactory(service *actions.Service) func(group *gin.RouterGroup) {
 
 		group.GET("/:actionId", func(c *gin.Context) {
 			actionId := c.Param("actionId")
-			action, _ := service.GetAction(actionId)
-			c.JSON(http.StatusOK, action)
+			action, err := service.GetAction(actionId)
+			if err != nil {
+				c.String(404, "Oops! Doc not found.")
+				c.Error(err)
+				c.AbortWithStatus(404)
+			} else {
+				c.JSON(http.StatusOK, action)
+			}
 		})
 	}
 
