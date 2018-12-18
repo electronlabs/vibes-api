@@ -1,9 +1,6 @@
 package router
 
 import (
-	"github.com/electronlabs/vibes-api/domain/actions"
-	actionsRoute "github.com/electronlabs/vibes-api/router/actions"
-	"github.com/electronlabs/vibes-api/router/health"
 	"net/http"
 
 	"github.com/electronlabs/vibes-api/domain/actions"
@@ -11,7 +8,6 @@ import (
 	actionsRoutes "github.com/electronlabs/vibes-api/router/actions"
 	healthRoutes "github.com/electronlabs/vibes-api/router/actions"
 	authMiddleware "github.com/electronlabs/vibes-api/router/middleware/auth"
-
 	"github.com/gin-gonic/gin"
 )
 
