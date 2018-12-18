@@ -6,6 +6,12 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
+const (
+	invalidAudience = "invalid token audience"
+	invalidIssuer   = "invalid token issuer"
+	missingKID      = "expecting JWT header to have string kid"
+)
+
 // AuthService interface defines authentication service behavior
 type AuthService interface {
 	CheckJWT(tokenStr string) (*jwt.Token, error)
@@ -44,13 +50,13 @@ func (svc *Service) validateClaims(token *jwt.Token) error {
 	// Validate audience
 	checkAud := token.Claims.(jwt.MapClaims).VerifyAudience(svc.audience, false)
 	if !checkAud {
-		return errors.New("invalid token audience")
+		return errors.New(invalidAudience)
 	}
 
 	// Validate issuer
 	checkIss := token.Claims.(jwt.MapClaims).VerifyIssuer(svc.issuer, false)
 	if !checkIss {
-		return errors.New("invalid token issuer")
+		return errors.New(invalidIssuer)
 	}
 
 	return nil
@@ -60,7 +66,7 @@ func (svc *Service) validateClaims(token *jwt.Token) error {
 func (svc *Service) getPublicKeyID(token *jwt.Token) (string, error) {
 	keyID, ok := token.Header["kid"].(string)
 	if !ok {
-		return "", errors.New("expecting JWT header to have string kid")
+		return "", errors.New(missingKID)
 	}
 
 	return keyID, nil
