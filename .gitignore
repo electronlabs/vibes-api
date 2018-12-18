@@ -16,6 +16,7 @@ vibes-api
 
 # build output
 build
+api
 
 .vscode/settings.json
 
