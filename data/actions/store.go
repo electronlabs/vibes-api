@@ -50,7 +50,6 @@ func (s *Store) ListActions() ([]actions.Action, error) {
 			log.Fatal(err)
 		}
 		results = append(results, actionDoc)
-		// do something with result....
 	}
 	if err := cur.Err(); err != nil {
 		log.Fatal(err)
@@ -67,9 +66,8 @@ func (s *Store) GetAction(actionId string) (actions.Action, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	err := collection.FindOne(ctx, filter).Decode(&result)
-	spew.Dump(err)
 	if err != nil {
-		spew.Dump("enter")
+		spew.Dump(err)
 		return result, errors.New("Action doc not found")
 	}
 	return result, err
