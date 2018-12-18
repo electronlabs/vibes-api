@@ -11,6 +11,12 @@ type AuthService interface {
 	CheckJWT(tokenStr string) (*jwt.Token, error)
 }
 
+// Config struct defines auth service configuration variables
+type Config struct {
+	Audience string
+	Issuer   string
+}
+
 // Service is the struct that implements AuthService interface
 type Service struct {
 	repository AuthRepository
@@ -19,11 +25,11 @@ type Service struct {
 }
 
 // NewService creates a new instance of authentication Service
-func NewService(repository AuthRepository, audience string, issuer string) *Service {
+func NewService(repository AuthRepository, config *Config) *Service {
 	return &Service{
 		repository: repository,
-		audience:   audience,
-		issuer:     issuer,
+		audience:   config.Audience,
+		issuer:     config.Issuer,
 	}
 }
 

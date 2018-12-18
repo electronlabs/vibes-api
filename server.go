@@ -25,7 +25,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	authSvc := auth.NewService(authRepo, configuration.Auth.Audience, configuration.Auth.Issuer)
+	authSvc := auth.NewService(authRepo, &auth.Config{Audience: configuration.Auth.Audience, Issuer: configuration.Auth.Issuer})
 
 	actionsRepo := actionsStore.New(mongo)
 	actionsSvc := actions.NewService(actionsRepo)
