@@ -19,6 +19,6 @@ clean:
 run:
 	./$(BINARY_NAME)
 deps:
-	$(GOGET) mod download
+	$(GOCMD) mod download
 fmt:
 	$(GOFMT) ./...
