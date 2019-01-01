@@ -15,7 +15,7 @@ import (
 func NewHTTPHandler(actionsSvc *actions.Service, validator auth.TokenValidator) http.Handler {
 	router := gin.Default()
 
-	authMid := auth.NewAuthMiddleware(validator)
+	authMid := auth.New(validator)
 
 	healthGroup := router.Group("/health")
 	healthRoutes.NewRoutesFactory()(healthGroup)

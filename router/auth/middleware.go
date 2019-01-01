@@ -2,12 +2,14 @@ package auth
 
 import (
 	"errors"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
 )
 
+// TokenValidator struct
 type TokenValidator interface {
 	CheckJWT(tokenStr string) (*jwt.Token, error)
 }
@@ -27,8 +29,8 @@ func jwtFromAuthHeader(r *http.Request) (string, error) {
 	return authHeaderParts[1], nil
 }
 
-// CheckJWT checks the JSON Web Token and verifies it has the correct permissions for the request.
-func NewAuthMiddleware(validator TokenValidator) gin.HandlerFunc {
+// New creates an auth middleware
+func New(validator TokenValidator) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		tokenStr, err := jwtFromAuthHeader(ctx.Request)
 		if err != nil {
