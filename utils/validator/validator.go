@@ -1,8 +1,10 @@
-package token
+package validator
 
 import (
 	"errors"
-	"github.com/dgrijalva/jwt-go"
+
+	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/electronlabs/vibes-api/utils/jwks"
 )
 
 const (
@@ -15,21 +17,22 @@ const (
 type Config struct {
 	Audience string
 	Issuer   string
-	JwksUrl  string
+	JwksURL  string
 }
 
+// Validator struct defines token claims
 type Validator struct {
 	audience string
 	issuer   string
-	jwksUrl  string
+	JwksURL  string
 }
 
-// NewValidator creates a new instance of token validator
-func NewValidator(config *Config) *Validator {
+// New creates a new instance of token validator
+func New(config *Config) *Validator {
 	return &Validator{
 		audience: config.Audience,
 		issuer:   config.Issuer,
-		jwksUrl:  config.JwksUrl,
+		JwksURL:  config.JwksURL,
 	}
 }
 
@@ -80,12 +83,12 @@ func (validator *Validator) tokenVerifier() func(token *jwt.Token) (interface{},
 			return nil, err
 		}
 
-		jwks, err := NewJWKS(validator.jwksUrl)
+		jwksToken, err := jwks.New(validator.JwksURL)
 		if err != nil {
 			return nil, err
 		}
 
-		return jwks.getPublicKey(keyID)
+		return jwksToken.GetPublicKey(keyID)
 	}
 }
 

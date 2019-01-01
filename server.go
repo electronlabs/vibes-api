@@ -3,14 +3,13 @@ package main
 import (
 	"net/http"
 
-	"github.com/electronlabs/vibes-api/utils/token"
-
 	actionsStore "github.com/electronlabs/vibes-api/data/actions"
 	"github.com/electronlabs/vibes-api/data/shared/mongodb"
 	"github.com/electronlabs/vibes-api/domain/actions"
 
 	"github.com/electronlabs/vibes-api/config"
 	"github.com/electronlabs/vibes-api/router"
+	"github.com/electronlabs/vibes-api/utils/validator"
 )
 
 func main() {
@@ -21,13 +20,13 @@ func main() {
 		panic(err)
 	}
 
-	tokenConfig := &token.Config{Audience: configuration.Auth.Audience, Issuer: configuration.Auth.Issuer, JwksUrl: configuration.Auth.JWKSURL}
-	validator := token.NewValidator(tokenConfig)
+	validatorConfig := &validator.Config{Audience: configuration.Auth.Audience, Issuer: configuration.Auth.Issuer, JwksURL: configuration.Auth.JWKSURL}
+	tokenValidator := validator.New(validatorConfig)
 
 	actionsRepo := actionsStore.New(mongo)
 	actionsSvc := actions.NewService(actionsRepo)
 
-	httpRouter := router.NewHTTPHandler(actionsSvc, validator)
+	httpRouter := router.NewHTTPHandler(actionsSvc, tokenValidator)
 
 	err = http.ListenAndServe(":"+configuration.Port, httpRouter)
 	if err != nil {
