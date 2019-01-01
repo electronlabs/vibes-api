@@ -3,11 +3,11 @@ package main
 import (
 	"net/http"
 
+	"github.com/electronlabs/vibes-api/utils/token"
+
 	actionsStore "github.com/electronlabs/vibes-api/data/actions"
-	jwks "github.com/electronlabs/vibes-api/data/auth"
 	"github.com/electronlabs/vibes-api/data/shared/mongodb"
 	"github.com/electronlabs/vibes-api/domain/actions"
-	"github.com/electronlabs/vibes-api/domain/auth"
 
 	"github.com/electronlabs/vibes-api/config"
 	"github.com/electronlabs/vibes-api/router"
@@ -21,16 +21,13 @@ func main() {
 		panic(err)
 	}
 
-	authRepo, err := jwks.New(configuration.Auth.JWKSURL)
-	if err != nil {
-		panic(err)
-	}
-	authSvc := auth.NewService(authRepo, &auth.Config{Audience: configuration.Auth.Audience, Issuer: configuration.Auth.Issuer})
+	tokenConfig := &token.Config{Audience: configuration.Auth.Audience, Issuer: configuration.Auth.Issuer, JwksUrl: configuration.Auth.JWKSURL}
+	validator := token.NewValidator(tokenConfig)
 
 	actionsRepo := actionsStore.New(mongo)
 	actionsSvc := actions.NewService(actionsRepo)
 
-	httpRouter := router.NewHTTPHandler(authSvc, actionsSvc)
+	httpRouter := router.NewHTTPHandler(actionsSvc, validator)
 
 	err = http.ListenAndServe(":"+configuration.Port, httpRouter)
 	if err != nil {

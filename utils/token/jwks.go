@@ -1,4 +1,4 @@
-package auth
+package token
 
 import (
 	"errors"
@@ -13,10 +13,10 @@ type JWKS struct {
 }
 
 // New creates a new JWKS struct, fetching the JSON Web Key Set using the URL passed.
-func New(url string) (*JWKS, error) {
+func NewJWKS(url string) (*JWKS, error) {
 	set, err := jwk.FetchHTTP(url)
 	if err != nil {
-		return nil, errors.New("Unable to fetch JSON Web Key Set")
+		return nil, errors.New("unable to fetch JSON Web Key Set")
 	}
 
 	return &JWKS{
@@ -26,10 +26,10 @@ func New(url string) (*JWKS, error) {
 
 // GetPublicKey searches inside a JWKS for a key corresponding to the key ID passed
 // and, if it's found, it generates the corresponding public RSA key using the key info.
-func (jwks *JWKS) GetPublicKey(keyID string) (interface{}, error) {
+func (jwks *JWKS) getPublicKey(keyID string) (interface{}, error) {
 	if keys := jwks.set.LookupKeyID(keyID); len(keys) == 1 {
 		return keys[0].Materialize()
 	}
 
-	return nil, errors.New("Unable to find key")
+	return nil, errors.New("unable to find key")
 }
