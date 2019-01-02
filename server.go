@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/electronlabs/vibes-api/utils/jwks"
 	"net/http"
 
 	actionsStore "github.com/electronlabs/vibes-api/data/actions"
@@ -20,8 +21,13 @@ func main() {
 		panic(err)
 	}
 
-	validatorConfig := &validator.Config{Audience: configuration.Auth.Audience, Issuer: configuration.Auth.Issuer, JwksURL: configuration.Auth.JWKSURL}
-	tokenValidator := validator.New(validatorConfig)
+	jwksToken, err := jwks.New(configuration.Auth.JWKSURL)
+	if err != nil {
+		panic(err)
+	}
+
+	validatorConfig := &validator.Config{Audience: configuration.Auth.Audience, Issuer: configuration.Auth.Issuer}
+	tokenValidator := validator.New(validatorConfig, jwksToken)
 
 	actionsRepo := actionsStore.New(mongo)
 	actionsSvc := actions.NewService(actionsRepo)

@@ -19,22 +19,21 @@ const (
 type Config struct {
 	Audience string
 	Issuer   string
-	JwksURL  string
 }
 
 // Validator struct defines token claims
 type Validator struct {
 	audience string
 	issuer   string
-	JwksURL  string
+	jwks     *jwks.JWKS
 }
 
 // New creates a new instance of token validator
-func New(config *Config) *Validator {
+func New(config *Config, jwks *jwks.JWKS) *Validator {
 	return &Validator{
 		audience: config.Audience,
 		issuer:   config.Issuer,
-		JwksURL:  config.JwksURL,
+		jwks:     jwks,
 	}
 }
 
@@ -85,12 +84,11 @@ func (validator *Validator) tokenVerifier() func(token *jwt.Token) (interface{},
 			return nil, err
 		}
 
-		jwksToken, err := jwks.New(validator.JwksURL)
 		if err != nil {
 			return nil, err
 		}
 
-		return jwksToken.GetPublicKey(keyID)
+		return validator.jwks.GetPublicKey(keyID)
 	}
 }
 
