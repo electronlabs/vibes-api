@@ -5,13 +5,12 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
 
 // TokenValidator struct
 type TokenValidator interface {
-	CheckJWT(tokenStr string) (*jwt.Token, error)
+	CheckJWT(tokenStr string) (*User, error)
 }
 
 // jwtFromAuthHeader takes a request and extracts the JWT token from the Authorization header.
@@ -37,11 +36,11 @@ func New(validator TokenValidator) gin.HandlerFunc {
 			ctx.AbortWithStatus(400)
 		}
 
-		jwtToken, err := validator.CheckJWT(tokenStr)
+		user, err := validator.CheckJWT(tokenStr)
 		if err != nil {
 			ctx.AbortWithStatus(401)
 		}
 
-		ctx.Set("user", jwtToken)
+		ctx.Set("user", user)
 	}
 }

@@ -3,6 +3,8 @@ package validator
 import (
 	"errors"
 
+	"github.com/electronlabs/vibes-api/router/auth"
+
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/electronlabs/vibes-api/utils/jwks"
 )
@@ -93,12 +95,13 @@ func (validator *Validator) tokenVerifier() func(token *jwt.Token) (interface{},
 }
 
 // CheckJWT checks the JSON Web Token and verifies it has the correct permissions.
-func (validator *Validator) CheckJWT(tokenStr string) (*jwt.Token, error) {
+func (validator *Validator) CheckJWT(tokenStr string) (*auth.User, error) {
 
-	token, err := jwt.Parse(tokenStr, validator.tokenVerifier())
+	// TODO: extract info from the parsed JWT and init the User struct
+	_, err := jwt.Parse(tokenStr, validator.tokenVerifier())
 	if err != nil {
 		return nil, err
 	}
 
-	return token, nil
+	return &auth.User{}, nil
 }
