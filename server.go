@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/electronlabs/vibes-api/utils/jwks"
 	"net/http"
+
+	"github.com/electronlabs/vibes-api/utils/jwks"
 
 	actionsStore "github.com/electronlabs/vibes-api/data/actions"
 	"github.com/electronlabs/vibes-api/data/shared/mongodb"

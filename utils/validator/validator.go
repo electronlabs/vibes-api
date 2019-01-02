@@ -5,8 +5,7 @@ import (
 
 	"github.com/electronlabs/vibes-api/router/auth"
 
-	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/electronlabs/vibes-api/utils/jwks"
+	"github.com/dgrijalva/jwt-go"
 )
 
 const (
@@ -14,6 +13,10 @@ const (
 	invalidIssuer   = "invalid token issuer"
 	missingKID      = "expecting JWT header to have string kid"
 )
+
+type PublicKeyGetter interface {
+	GetPublicKey(keyID string) (interface{}, error)
+}
 
 // Config struct defines auth service configuration variables
 type Config struct {
@@ -23,17 +26,17 @@ type Config struct {
 
 // Validator struct defines token claims
 type Validator struct {
-	audience string
-	issuer   string
-	jwks     *jwks.JWKS
+	audience        string
+	issuer          string
+	publicKeyGetter PublicKeyGetter
 }
 
 // New creates a new instance of token validator
-func New(config *Config, jwks *jwks.JWKS) *Validator {
+func New(config *Config, publicKeyGetter PublicKeyGetter) *Validator {
 	return &Validator{
-		audience: config.Audience,
-		issuer:   config.Issuer,
-		jwks:     jwks,
+		audience:        config.Audience,
+		issuer:          config.Issuer,
+		publicKeyGetter: publicKeyGetter,
 	}
 }
 
@@ -88,7 +91,7 @@ func (validator *Validator) tokenVerifier() func(token *jwt.Token) (interface{},
 			return nil, err
 		}
 
-		return validator.jwks.GetPublicKey(keyID)
+		return validator.publicKeyGetter.GetPublicKey(keyID)
 	}
 }
 
