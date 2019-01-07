@@ -4,20 +4,26 @@ import (
 	"net/http"
 
 	"github.com/electronlabs/vibes-api/domain/actions"
-	actionsRoute "github.com/electronlabs/vibes-api/router/actions"
-	"github.com/electronlabs/vibes-api/router/health"
+	"github.com/electronlabs/vibes-api/router/auth"
 
+	actionsRoutes "github.com/electronlabs/vibes-api/router/actions"
+	healthRoutes "github.com/electronlabs/vibes-api/router/health"
 	"github.com/gin-gonic/gin"
 )
 
 // NewHTTPHandler returns the HTTP requests handler
-func NewHTTPHandler(actionsSvc *actions.Service) http.Handler {
+func NewHTTPHandler(actionsSvc *actions.Service, validator auth.TokenValidator) http.Handler {
 	router := gin.Default()
-	health.Routes(router)
+
+	authMid := auth.New(validator)
+
+	healthGroup := router.Group("/health")
+	healthRoutes.NewRoutesFactory()(healthGroup)
 
 	api := router.Group("/api")
 
 	actionsGroup := api.Group("/actions")
-	actionsRoute.NewRoutesFactory(actionsSvc)(actionsGroup)
+	actionsGroup.Use(authMid)
+	actionsRoutes.NewRoutesFactory(actionsSvc)(actionsGroup)
 	return router
 }
